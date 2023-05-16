@@ -2,32 +2,31 @@ const Product = require("../models/product");
 
 module.exports.getAllProducts = async (req, res) => {
   try {
-    const limit = Number(req.query.limit);
-    const sort = req.query.sort == "desc" ? -1 : 1;
+    let limit = Number(req.query.limit);
+    let sort = req.query.sort == "desc" ? -1 : 1;
 
     const products = await Product.find()
       .select()
       .limit(limit)
-      .sort({ id: sort })
-      .then((products) => {
-        res.json(products);
-      });
+      .sort({ id: sort });
+    res.json(products);
   } catch {
-    console.log(err);
+    res.status(500).json({ message: "Fail to fetch products!" });
   }
 };
 
 module.exports.getProduct = async (req, res) => {
   try {
     let id = req.params.id;
+    const products = await Product.findById(id).select();
 
-    const products = await Product.findById(id)
-      .select(["-_id"])
-      .then((product) => {
-        res.json(product);
-      });
+    if (!products) {
+      res.status(404).json({ message: "Fail to get product!" });
+    } else {
+      res.json(products);
+    }
   } catch {
-    console.log(err);
+    res.status(500).json({ message: "Fail to fetch product!" });
   }
 };
 
@@ -37,7 +36,7 @@ module.exports.getProductCategories = async (req, res) => {
       res.json(categories);
     });
   } catch {
-    console.log(err);
+    res.status(500).json({ message: "Fail to fetch product category!" });
   }
 };
 
@@ -57,58 +56,60 @@ module.exports.getProductsInCategory = async (req, res) => {
         res.json(products);
       });
   } catch {
-    console.log(err);
+    res.status(500).json({ message: "Fail to fetch products!" });
   }
 };
 
 module.exports.addProduct = async (req, res) => {
-  if (typeof req.body == undefined) {
-    res.json({
-      status: "error",
-      message: "data undefined",
-    });
-  } else {
-    const product = {
-      title: req.body.title,
-      price: req.body.price,
-      description: req.body.description,
-      image: req.body.image,
-      category: req.body.category,
-    };
+  try {
+    const { title, price, description, image, category } = req.body;
 
-    const products = await Product.collection.insertOne(product);
+    if (!req.body) {
+      return res.status(400).json({
+        status: "error",
+        message: "Provide all required fields.",
+      });
+    }
+    const product = await Product.create({
+      title,
+      price,
+      description,
+      image,
+      category,
+    });
     res.json(product);
+  } catch {
+    res.status(500).json({ message: "Fail to add product!" });
   }
 };
 
 module.exports.editProduct = async (req, res) => {
-  if (typeof req.body == undefined || req.params.id == null) {
-    res.json({
-      status: "error",
-      message: "something went wrong!",
-    });
-  } else {
-    const products = await Product.findByIdAndUpdate(req.params.id, req.body)
-      .then((product) => {
-        res.json(product);
-      })
-      .catch((err) => console.log(err));
+  try {
+    if (typeof req.body == undefined || req.params.id == null) {
+      return res.status(400).json({
+        status: "error",
+        message: "Provide product to edit.",
+      });
+    }
+    const product = await Product.findByIdAndUpdate(req.body);
+    res.json(product);
+  } catch {
+    res.status(500).json({ message: "Fail to edit product!" });
   }
 };
 
 module.exports.deleteProduct = async (req, res) => {
-  if (req.params.id == null) {
-    res.json({
-      status: "error",
-      message: "insert product ID",
-    });
-  } else {
-    const products = await Product.deleteOne({
-      _id: req.params.id,
-    })
-      .then((product) => {
-        res.json(product);
-      })
-      .catch((err) => console.log(err));
+  try {
+    if (req.params.id == null) {
+      return res.status(400).json({
+        status: "error",
+        message: "Provide id",
+      });
+    } else {
+      const product = await Product.deleteOne({ _id: req.params.id });
+      res.json(product);
+    }
+  } catch {
+    res.status(500).json({ message: "Fail to delete product!" });
   }
 };
