@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
-const User = require('../model/user');
-const user = require('../controller/user');
+const User = require('../models/user');
+const user = require('../controllers/user');
 
 describe('Test users api', () => {
   it('/GET ALL USERS', async () => {

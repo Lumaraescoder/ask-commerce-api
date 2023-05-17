@@ -1,8 +1,8 @@
 let express = require("express");
 let router = express.Router();
 let product = require("../controllers/product");
-let validate = require("../validations/product.validation");
-let productValidation = require("../validations/product.validation");
+
+
 router.get("/", product.getAllProducts);
 router.get("/:id", product.getProduct);
 router.get("/categories", product.getProductCategories);
