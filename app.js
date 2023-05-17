@@ -4,7 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const mongoose = require("mongoose");
-
+require('dotenv').config();
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/product");
@@ -23,13 +23,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
+
+
 app.use(function (req, res, next) {
   next(createError(404));
 });
 
 mongoose.connect(
-  process.env.MONGODB_URI ||
-    "mongodb+srv://arcana:arcana123@cluster0.lmaxd.mongodb.net/",
+  process.env.MONGODB_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
