@@ -29,7 +29,7 @@ app.use(function (req, res, next) {
 
 mongoose.connect(
   process.env.MONGODB_URI ||
-    "mongodb+srv://rpinheiro:askblue@cluster0.pf33y1b.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://arcana:arcana123@cluster0.lmaxd.mongodb.net/",
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
