@@ -1,19 +1,26 @@
 {
 	"info": {
-		"_postman_id": "667bb1e4-0b4a-460f-8ad9-a59d7270c8d5",
+		"_postman_id": "2a97febf-55a3-442d-ab3a-2b7a9c8fc544",
 		"name": "Ask-commerce",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "11529750"
+		"_exporter_id": "27328801"
 	},
 	"item": [
 		{
 			"name": "Products",
 			"item": [
 				{
-					"name": "List Products",
+					"name": "All Products",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
 						"url": {
 							"raw": "http://localhost:3000/products",
 							"protocol": "http",
@@ -29,16 +36,24 @@
 					"response": []
 				},
 				{
-					"name": "Delete Product",
+					"name": "Single Product",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
-						"method": "POST",
+						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": ""
+							"raw": "{\r\n    \"_id\": \"645d1b1c7e1ee3ff18e6cd38\",\r\n    \"title\": \"test\",\r\n    \"price\": 13.5,\r\n    \"description\": \"test desc\",\r\n    \"image\": \"test img\",\r\n    \"category\": \"text cat\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
 						},
 						"url": {
-							"raw": "http://localhost:3000/products/1",
+							"raw": "http://localhost:3000/products/645d1b1c7e1ee3ff18e6cd38",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -46,7 +61,28 @@
 							"port": "3000",
 							"path": [
 								"products",
-								"1"
+								"645d1b1c7e1ee3ff18e6cd38"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Products in Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/products/category/category",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"products",
+								"category",
+								"category"
 							]
 						}
 					},
@@ -59,7 +95,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"title\": \"novo produto 2\",\r\n    \"image\": \"sem imagem\"\r\n}",
+							"raw": "{\r\n    \"title\": \"novo produto dddd2\",\r\n    \"price\": 2,\r\n    \"image\": \"sem imagddem\",\r\n    \"description\": \"desc\",\r\n    \"category\": \"cat\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -83,10 +119,19 @@
 				{
 					"name": "Edit Product",
 					"request": {
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"_id\": \"645d1b1c7e1ee3ff18e6cd38\",\r\n    \"title\": \"testttt\",\r\n    \"price\": 13.5,\r\n    \"description\": \"test desc\",\r\n    \"image\": \"test img\",\r\n    \"category\": \"text cat\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:3000/products/1",
+							"raw": "http://localhost:3000/products/645d1b1c7e1ee3ff18e6cd38",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -94,19 +139,28 @@
 							"port": "3000",
 							"path": [
 								"products",
-								"1"
+								"645d1b1c7e1ee3ff18e6cd38"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "get single product",
+					"name": "Delete Product",
 					"request": {
-						"method": "GET",
+						"method": "DELETE",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "http://localhost:3000/products/1",
+							"raw": "http://localhost:3000/products/645d1b1c7e1ee3ff18e6cd38",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -114,7 +168,127 @@
 							"port": "3000",
 							"path": [
 								"products",
-								"1"
+								"645d1b1c7e1ee3ff18e6cd38"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "getAllUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addUser",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"hug\",\n    \"email\": \"ricardo@gmail.com\",\n    \"password\": \"wordpass\",\n    \"firstName\": \"hugo\",\n    \"lastName\": \"barcelos\" \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/users/646262b0152fa84452b3cd0f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users",
+								"646262b0152fa84452b3cd0f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editUser",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"hugofa@gmail.com\",\n    \"username\": \"o a\",\n    \"password\": \"1235\",\n    \"firstName\": \"hgo\",\n    \"lastName\": \"barcelos\",\n    \"__v\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "text"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/users/646262b0152fa84452b3cd0f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"users",
+								"646262b0152fa84452b3cd0f"
 							]
 						}
 					},
