@@ -44,3 +44,54 @@ module.exports.getCartById = async(req, res) => {
         res.status(500).json({ message: 'error fetching cart.' });
     }
 };
+
+module.exports.addCart = async(req, res) => {
+    try {
+        const { id, userId, date, products } = req.body;
+        if (!id || !userId || !date || !products) {
+            return res
+                .status(400)
+                .json({ message: "something's missing", status: 'Error' });
+        } else {
+            const cart = await Cart.create({
+                id,
+                userId,
+                date,
+                products,
+            });
+
+            res.json(cart);
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'error adding cart.' });
+    }
+}
+
+module.exports.deleteCart = async(req, res) => {
+    try {
+        if (req.params.id == null) {
+            res.json({
+                status: 'error',
+                message: 'cart id should be provided',
+            });
+        } else {
+            const cart = await Cart.deleteOne({ _id: req.params.id });
+            res.json(cart);
+        }
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'error deleting cart.' });
+    }
+}
+
+module.exports.editCart = async(req, res) => {
+    try {
+        const id = req.params.id;
+        const cart = await Cart.findByIdAndUpdate(id, req.body);
+        res.json(cart);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'error editing cart.' });
+    }
+}
