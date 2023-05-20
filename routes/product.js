@@ -1,6 +1,6 @@
-let express = require("express");
-let router = express.Router();
-let product = require("../controllers/product");
+const express = require("express");
+const router = express.Router();
+const product = require("../controllers/product");
 
 
 router.get("/", product.getAllProducts);
