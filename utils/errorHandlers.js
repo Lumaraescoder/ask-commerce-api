@@ -1,16 +1,7 @@
-const validateLoginInput = (username, password) => {
-    if (!username || !password) {
-      throw createCustomError(400, 'Username and password are required.');
-    }
-  };
-  
-  const withErrorHandling = (handler) => {
-    return async (req, res, next) => {
-      try {
-        await handler(req, res, next);
-      } catch (error) {
-        next(error);
-      }
-    };
-  };
-  
+const createCustomError = (statusCode, message) => {
+  const error = new Error(message);
+  error.statusCode = statusCode;
+  return error;
+};
+
+module.exports = { createCustomError };

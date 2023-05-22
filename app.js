@@ -8,6 +8,7 @@ require('dotenv').config();
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 var productsRouter = require("./routes/product");
+const { handleErrors } = require("./middlewares/errorHandler");
 var app = express();
 
 // view engine setup
@@ -24,7 +25,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/products", productsRouter);
 
-
+app.use(handleErrors)
 app.use(function (req, res, next) {
   next(createError(404));
 });
