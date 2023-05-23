@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const SECRET_KEY = "SECRET_KEY";
 const SERVER_ERROR = "Failed to log in. Please try again later.";
 
-module.exports.login = async (req, res) => {
+module.exports.login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
@@ -24,7 +24,7 @@ module.exports.login = async (req, res) => {
       });
     }
 
-    const passwordMatch = bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (passwordMatch) {
       const token = jwt.sign({ user: user.username }, SECRET_KEY);
@@ -37,13 +37,12 @@ module.exports.login = async (req, res) => {
         message: "Invalid username or password",
       });
     }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: SERVER_ERROR });
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.register = async (req, res) => {
+module.exports.register = async (req, res, next) => {
   const { username, email, password } = req.body;
   const saltRounds = 10;
   try {
@@ -71,8 +70,7 @@ module.exports.register = async (req, res) => {
       password: hashedPassword,
     });
     res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Fail to register user!" });
+  } catch (err) {
+    next(err);
   }
 };
