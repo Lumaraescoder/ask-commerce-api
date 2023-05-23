@@ -19,7 +19,7 @@ Enable wishlist functionality for users to save and track desired products.
 #
 Implement a comprehensive user profile management system for personalized experiences.
 #
-mplement user notifications to keep users informed about order updates, promotions, and relevant information.#
+implement user notifications to keep users informed about order updates, promotions, and relevant information.#
 Implement an advanced search functionality to help users find products quickly and accurately.
 #
 Security and Performance:
