@@ -32,11 +32,10 @@ module.exports.getProduct = async (req, res) => {
 
 module.exports.getProductCategories = async (req, res) => {
   try {
-    const products = await Product.distinct("category").then((categories) => {
-      res.json(categories);
-    });
-  } catch {
-    res.status(500).json({ message: "Fail to fetch product category!" });
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch product categories!", error: error });
   }
 };
 
