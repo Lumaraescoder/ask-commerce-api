@@ -6,9 +6,6 @@
     "start": "nodemon ./bin/www",
     "test": "jest"
   },
-  "engines": {
-    "node": "14.x"
-  },
   "dependencies": {
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
