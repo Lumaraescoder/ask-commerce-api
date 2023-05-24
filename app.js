@@ -9,9 +9,6 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const productsRouter = require("./routes/product");
 
-const indexRouter = require("./routes/index");
-const usersRouter = require("./routes/users");
-const productsRouter = require("./routes/product");
 const { handleErrors } = require("./middlewares/errorHandler");
 const app = express();
 
