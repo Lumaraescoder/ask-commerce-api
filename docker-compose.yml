@@ -10,6 +10,8 @@ services:
       - .:/app
     depends_on:
       - mongodb
+    environment:
+      - MONGODB_URI=${MONGODB_URI}
   mongodb:
     image: mongo
     ports:
