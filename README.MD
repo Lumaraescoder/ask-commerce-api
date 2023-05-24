@@ -1,8 +1,14 @@
 # how  to run 
 npm install 
-npm run dev 
-npm run test 
-
+#
+npm run dev
+#
+npm run test
+#
+With docker
+#
+docker compose up -d
+ #
 Order Management:
 #
 Create robust routes and controllers to handle all aspects of order management.
