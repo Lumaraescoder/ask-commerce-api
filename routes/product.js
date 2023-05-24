@@ -1,11 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const product = require("../controllers/product");
+let express = require("express");
+let router = express.Router();
+let product = require("../controllers/product");
 
+router.get("/category", product.getProductCategories);
 
 router.get("/", product.getAllProducts);
 router.get("/:id", product.getProduct);
-router.get("/categories", product.getProductCategories);
 router.get("/category/:category", product.getProductsInCategory);
 router.post("/", product.addProduct);
 router.put("/:id", product.editProduct);

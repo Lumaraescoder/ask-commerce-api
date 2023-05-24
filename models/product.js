@@ -17,6 +17,8 @@ const productSchema = new schema({
   category: {
     type: String,
     required: true,
+    trim: true,
+    enum: ['Eletronics', 'Books', 'Clothing', 'Other'],
   },
   description: {
     type: String,
