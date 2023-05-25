@@ -70,6 +70,7 @@ module.exports.addProduct = async (req, res, next) => {
         message: "Provide all required fields.",
       });
     }
+
     const product = await Product.create({
       title,
       price,

@@ -1,54 +1,67 @@
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const SECRET_KEY = "SECRET_KEY";
-const SERVER_ERROR = "Failed to log in. Please try again later.";
 
 module.exports.login = async (req, res, next) => {
   try {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-      return res.status(400).json({
-        message: "Missing username or password",
-        status: "Error",
-      });
-    }
-
+    // Verificar se o utilizador existe na BD
     const user = await User.findOne({ username });
 
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         status: "error",
-        message: "Invalid username or password",
+        message: "User not found.",
       });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    // Comparar a senha encriptada com a senha fornecida
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (passwordMatch) {
-      const token = jwt.sign({ user: user.username }, SECRET_KEY);
-      return res.json({
-        token,
-      });
-    } else {
+    if (!isPasswordValid) {
       return res.status(401).json({
         status: "error",
-        message: "Invalid username or password",
+        message: "Invalid password.",
       });
     }
-  } catch (err) {
-    next(err);
+
+    // Gerar um token com o ID
+    const token = jwt.sign(
+      { id: user._id, isAdmin: user.isAdmin },
+      "SECRET_KEY",
+      { expiresIn: "1h" }
+    );
+
+    console.log("Generated token:", token); // Exibir o token no console
+
+    res.json({
+      status: "success",
+      message: "Login successful.",
+      token,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "An unexpected error occurred.",
+    });
   }
 };
 
 module.exports.register = async (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { username, email, password, firstName, lastName, isAdmin } = req.body;
   const saltRounds = 10;
   try {
-    if (!username || !email || !password) {
+    if (
+      !username ||
+      !email ||
+      !password ||
+      !firstName ||
+      !lastName ||
+      isAdmin === undefined
+    ) {
       return res.status(400).json({
-        message: "Missing username, email or password",
+        message: "Missing fields!",
         status: "Error",
       });
     }
@@ -68,8 +81,11 @@ module.exports.register = async (req, res, next) => {
       username: username,
       email: email,
       password: hashedPassword,
+      firstName: firstName,
+      lastName: lastName,
+      isAdmin: isAdmin,
     });
-    res.json(user);
+    res.status(201).json({ message: "Sucessfully registered user!" });
   } catch (err) {
     next(err);
   }

@@ -6,6 +6,10 @@ const userSchema = new schema({
     type: Number,
     required: false,
   },
+  isAdmin: {
+    type: Boolean,
+    required: true,
+  },
   email: {
     type: String,
     required: true,
