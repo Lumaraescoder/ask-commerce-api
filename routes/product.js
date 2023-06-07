@@ -5,7 +5,6 @@ const userValidator = require("../controllers/userValidator");
 
 router.get("/", product.getAllProducts);
 router.get("/:id", product.getProduct);
-router.get("/categories", product.getProductCategories);
 router.get("/category/:category", product.getProductsInCategory);
 router.post("/", userValidator.adminValidator, product.addProduct);
 router.put("/:id", userValidator.adminValidator, product.editProduct);

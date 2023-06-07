@@ -15,48 +15,44 @@ module.exports.getAllProducts = async (req, res, next) => {
   }
 };
 
-module.exports.getProduct = async (req, res, next) => {
+module.exports.getProductCategories = async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    res.json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch product categories!", error: error });
+  }
+};
+
+
+module.exports.getProduct = async (req, res) => {
   try {
     let id = req.params.id;
     const products = await Product.findById(id).select();
 
     if (!products) {
-      res.status(404).json({ message: "Fail to get product!" });
+      res.status(404).json({ message: "Fail to get product! hello" });
     } else {
       res.json(products);
     }
-  } catch (err) {
-    next(err);
+  } catch {
+    res.status(500).json({ message: "Fail to fetch product! hello" });
   }
 };
 
-module.exports.getProductCategories = async (req, res, next) => {
-  try {
-    const products = await Product.distinct("category").then((categories) => {
-      res.json(categories);
-    });
-  } catch (err) {
-    next(err);
-  }
-};
 
 module.exports.getProductsInCategory = async (req, res, next) => {
   try {
     let category = req.params.category;
-    let limit = Number(req.query.limit);
-    let sort = req.query.sort == "desc" ? -1 : 1;
 
     const products = await Product.find({
       category,
-    })
-      .select(["-_id"])
-      .limit(limit)
-      .sort({ id: sort })
-      .then((products) => {
-        res.json(products);
-      });
-  } catch (err) {
-    next(err);
+    });
+
+    res.json(products);
+
+  } catch {
+    res.status(500).json({ message: "Fail to fetch products!" });
   }
 };
 
