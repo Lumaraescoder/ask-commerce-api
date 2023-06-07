@@ -1,5 +1,9 @@
 # how  to run 
 npm install 
+
+npm run dev 
+npm run test 
+
 #
 npm run dev
 #
@@ -102,3 +106,4 @@ Generate comprehensive reports for sales, inventory, and customer insights.
 #
 Implement data visualization for better understanding of business metrics.
 #
+
