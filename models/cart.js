@@ -23,8 +23,8 @@ const cartSchema = new schema({
         quantity: {
             type: Number,
             required: true,
-            min: 1,
-            default: 1
+            // min: 1,
+            // default: 1
         },
         price: {
             type: Number,
@@ -35,7 +35,7 @@ const cartSchema = new schema({
     total: {
         type: Number,
         required: true,
-        default: 0
+        // default: 0
     }
 })
 

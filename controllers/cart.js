@@ -1,3 +1,4 @@
+const cart = require('../models/cart');
 const Cart = require('../models/cart');
 const Product = require('../models/product');
 // dúvidas se tenho de importar o model do user por causa do userId, visto que no model do Cart, há a referência do model do User para o campo userId
@@ -108,118 +109,172 @@ module.exports.editCart = async(req, res, next) => {
     }
 }
 
-module.exports.addItemToExistingCart = async(req, res, next, productToAdd) => {
-    try {
-        let alreadyInCart = false;
-        const cartItems = req.body.Cart.products;
-        cartItems.forEach(item => {
-            if (item._id === productToAdd.id) {
-                item++;
-                alreadyInCart = true;
-            }
-            if (!alreadyInCart) {
-                cartItems.push(...productToAdd)
-            }
-        });
-    } catch (err) {
-        next(err);
-    }
-}
-
-module.exports.addProductQuantityInCart = async(req, res, next) => {
-
-}
-
-module.exports.removeProductQuantityInCart = async(req, res, next) => {
-
-}
-
 module.exports.getCartItems = async(req, res, next) => {
-    const owner = req.userId;
-    try {
-        const cart = await Cart.findOne({ owner });
-        if (cart && cart.products.length > 0) {
-            res.json(cart);
-        } else {
-            res.json(null);
-        }
-    } catch (err) {
-        next(err);
-    }
-}
-
-module.exports.addCart = async(req, res, next) => {
-    const userId = req.body.userId._id;
-    const { productId, quantity } = req.body.products;
-
-    try {
-        const cart = await Cart.findOne({ userId });
-        const product = await Product.findOne({ _id: productId });
-        const price = product.price;
-        const title = product.title;
-
-        if (cart) {
-            const productIndex = cart.products.findIndex((product) => product.productId == productId);
-            // product exist?
-            if (productIndex > -1) {
-                let product = cart.products[productIndex];
-                product.quantity += quantity;
-
-                cart.total = cart.products.reduce((acc, curr) => {
-                    return acc + curr.quantity * curr.price;
-                }, 0)
-                cart.products[productIndex] = product;
-                await cart.save();
-                res.status(200).send(cart);
+        const owner = req.userId;
+        try {
+            const cart = await Cart.findOne({ owner });
+            if (cart && cart.products.length > 0) {
+                res.json(cart);
             } else {
-                cart.products.push({ productId, title, quantity, price });
-                cart.total = cart.products.reduce((acc, curr) => {
-                    return acc + curr.quantity * curr.price;
-                }, 0)
-
-                await cart.save();
-                res.status(200).send(cart);
+                res.json(null);
             }
-        } else {
-            //create a newCart
-            const newCart = await Cart.create({
-                userId,
-                products: [{ productId, title, quantity, price }],
-                total: quantity * price,
-            });
-            return res.status(201).send(newCart);
+        } catch (err) {
+            next(err);
         }
-    } catch (err) {
-        next(err);
     }
-}
+    // module.exports.addCart = async(req, res) => {
+    //     try {
+    //         const { userId, products } = req.body;
 
-module.exports.deleteCart = async(req, res, next) => {
-    const owner = req.userId;
-    const productQueryId = req.query.productId;
+//         let cart;
 
+//         if (userId) {
+//             cart = await Cart.findOne({ userId });
+//         }
+
+//         if (!cart) {
+//             cart = new Cart({ userId, products: [], total: 0 });
+//         }
+
+//         for (const product of products) {
+//             const { productId, title, quantity, price } = product;
+
+//             if (!productId || !title) {
+//                 continue;
+//             }
+//             cart.products.push({ productId, title, quantity, price });
+
+//             cart.total += quantity * price;
+//         }
+
+//         await cart.save();
+
+//         res.status(201).json({ message: 'Cart with product added successfully', cart });
+
+//     } catch (err) {
+//         console.log(err);
+//         res.status(500).json({ message: "Failed to add cart with product", err });
+//     }
+// };
+
+module.exports.addCart = async(req, res) => {
     try {
-        let cart = await Cart.findOne({ owner });
+        const { userId, products } = req.body;
 
-        const productIndex = cart.products.findIndex((product) => product.productId == productQueryId);
+        let cart;
 
-        if (productIndex > -1) {
-            let product = cart.products[productIndex];
-            cart.total -= product.quantity * product.price;
-            if (cart.total < 0) {
-                cart.total = 0
-            }
-            cart.products.splice(productIndex, 1);
-            cart.total = cart.products.reduce((acc, curr) => {
-                return acc + curr.quantity * curr.price;
-            }, 0)
-            cart = await cart.save();
-            res.status(200).send(cart);
-        } else {
-            res.status(404).send("product not found")
+        if (userId) {
+            cart = await Cart.findOne({ userId });
         }
-    } catch (err) {
-        next(err);
-    }
 
+        if (!cart) {
+            cart = new Cart({ userId, products: [], total: 0 });
+        }
+
+        let productToAdd = (req.body.products[0].productId).toString();
+        let quantityOfProductToAdd = req.body.products[0].quantity;
+        //console.log("productIdOnBody ->", productToAdd);
+        //console.log("quantityOfProductToAdd -> ", quantityOfProductToAdd);
+
+        let isProductAlreadyInCart = await cart.products.find(product => product.productId === `${productToAdd}`);
+        //console.log("isProductAlreadyInCart ? ->", isProductAlreadyInCart);
+
+        if (isProductAlreadyInCart === undefined) {
+
+            for (const product of products) {
+                const { productId, title, quantity, price } = product;
+
+                if (!productId || !title) {
+                    continue;
+                }
+                cart.products.push({ productId, title, quantity, price });
+
+                cart.total += quantity * price;
+            }
+        } else {
+            // let productIndex = cart.products.indexOf(isProductAlreadyInCart);
+            // console.log("productIndex -> ", productIndex);
+            // console.log("cart.products[productIndex] ->", cart.products[productIndex]);
+            isProductAlreadyInCart.quantity += quantityOfProductToAdd;
+            cart.total += quantityOfProductToAdd * isProductAlreadyInCart.price;
+            // cart.products[productIndex].quantity += req.body.products.quantity;
+        }
+
+        await cart.save();
+
+
+        res.status(201).json({ message: 'Cart with product added successfully', cart });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Failed to add cart with product", err });
+    }
+};
+
+module.exports.deleteCart = async(req, res) => {
+    const userId = req.params.userId;
+    const productParamId = req.params.productId;
+    try {
+        //const { userId, productId } = req.params;
+
+        let cart;
+
+        if (userId) {
+            cart = await Cart.findOne({ userId });
+        }
+
+        if (!cart) {
+            res.status(500).json({ message: "Failed to find cart for this user", err });
+        }
+
+
+        //for (const product of cart.products) {
+        //const { productId, title, quantity, price } = product;
+
+        if (!productParamId) {
+            res.status(500).json({ message: "Failed to find product on this cart", err });
+        }
+
+        if (productParamId) {
+            //console.log("cart.products ->", cart.products);
+            let selectedProduct = await cart.products.find(product => product.productId === `${productParamId}`);
+            if (selectedProduct === undefined) {
+                res.status(500).json({ message: "Failed to find product on this cart", err });
+            } else {
+
+                //console.log("selectedProduct is this one->", selectedProduct);
+                //console.log("selectedProduct.quantity is this one->", selectedProduct.quantity);
+
+                if (selectedProduct.quantity > 1) {
+                    //console.log('value bigger than 1');
+                    //console.log("selectedProductQuantity is ->", selectedProduct.quantity)
+                    selectedProduct.quantity -= 1;
+                    cart.total -= selectedProduct.price;
+                } else {
+                    //console.log("value is equal to 1");
+                    let indexOfSelectedProduct = cart.products.indexOf(selectedProduct);
+                    //console.log("indexOfSelectedProduct", indexOfSelectedProduct);
+                    cart.products.splice(indexOfSelectedProduct, 1);
+                    cart.total -= selectedProduct.quantity * selectedProduct.price;
+                }
+                // for (const product of cart.products) {
+                //     cart.total -= selectedProduct.quantity * selectedProduct.price;
+                // }
+                //console.log("updated cart", cart);
+                //console.log("cart length is ->", cart.products.length);
+            }
+        }
+        if (cart.products.length < 1) {
+            const cart = await Cart.deleteOne({ userId: req.params.userId });
+            //res.json(cart);
+            res.status(200).json({ message: 'Product removed successfully from cart and cart deleted' });
+        } else {
+            await cart.save();
+            res.status(200).json({ message: 'Product removed successfully from cart', cart });
+        }
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Failed to remove product from cart", err });
+    }
 }
