@@ -1,6 +1,6 @@
 const Product = require("../models/product");
 
-module.exports.getAllProducts = async (req, res) => {
+module.exports.getAllProducts = async (req, res, next) => {
   try {
     let limit = Number(req.query.limit);
     let sort = req.query.sort == "desc" ? -1 : 1;
@@ -10,8 +10,8 @@ module.exports.getAllProducts = async (req, res) => {
       .limit(limit)
       .sort({ id: sort });
     res.json(products);
-  } catch {
-    res.status(500).json({ message: "Fail to fetch products!" });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -41,7 +41,7 @@ module.exports.getProduct = async (req, res) => {
 };
 
 
-module.exports.getProductsInCategory = async (req, res) => {
+module.exports.getProductsInCategory = async (req, res, next) => {
   try {
     let category = req.params.category;
 
@@ -56,7 +56,7 @@ module.exports.getProductsInCategory = async (req, res) => {
   }
 };
 
-module.exports.addProduct = async (req, res) => {
+module.exports.addProduct = async (req, res, next) => {
   try {
     const { title, price, description, image, category } = req.body;
 
@@ -66,6 +66,7 @@ module.exports.addProduct = async (req, res) => {
         message: "Provide all required fields.",
       });
     }
+
     const product = await Product.create({
       title,
       price,
@@ -74,12 +75,12 @@ module.exports.addProduct = async (req, res) => {
       category,
     });
     res.json(product);
-  } catch {
-    res.status(500).json({ message: "Fail to add product!" });
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.editProduct = async (req, res) => {
+module.exports.editProduct = async (req, res, next) => {
   try {
     if (typeof req.body == undefined || req.params.id == null) {
       return res.status(400).json({
@@ -89,12 +90,12 @@ module.exports.editProduct = async (req, res) => {
     }
     const product = await Product.findByIdAndUpdate(req.body);
     res.json(product);
-  } catch {
-    res.status(500).json({ message: "Fail to edit product!" });
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.deleteProduct = async (req, res) => {
+module.exports.deleteProduct = async (req, res, next) => {
   try {
     if (req.params.id == null) {
       return res.status(400).json({
@@ -105,7 +106,7 @@ module.exports.deleteProduct = async (req, res) => {
       const product = await Product.deleteOne({ _id: req.params.id });
       res.json(product);
     }
-  } catch {
-    res.status(500).json({ message: "Fail to delete product!" });
+  } catch (err) {
+    next(err);
   }
 };
