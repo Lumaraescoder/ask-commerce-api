@@ -4,17 +4,18 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
-
 
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const productsRouter = require("./routes/product");
 const cartRouter = require("./routes/cart");
-const authRouter = require("./routes/auth")
+const authRouter = require("./routes/auth");
 
 const { handleErrors } = require("./middlewares/errorHandler");
 const app = express();
+app.use(cors());
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -46,8 +47,8 @@ app.use(function (err, req, res, next) {
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
-    res.status(err.status || 500);
-    res.render("error");
+  res.status(err.status || 500);
+  res.render("error");
 });
 
 module.exports = app;
