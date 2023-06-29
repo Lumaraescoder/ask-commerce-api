@@ -1,4 +1,6 @@
 const Product = require("../models/product");
+const multer = require("multer");
+const upload = multer().single("image");
 
 module.exports.getAllProducts = async (req, res, next) => {
   try {
@@ -6,7 +8,7 @@ module.exports.getAllProducts = async (req, res, next) => {
     let sort = req.query.sort == "desc" ? -1 : 1;
 
     const products = await Product.find()
-      .select()
+      .select("-image")
       .limit(limit)
       .sort({ id: sort });
     res.json(products);
@@ -20,61 +22,107 @@ module.exports.getProductCategories = async (req, res) => {
     const categories = await Product.distinct("category");
     res.json(categories);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch product categories!", error: error });
+    res
+      .status(500)
+      .json({ message: "Failed to fetch product categories!", error: error });
   }
 };
-
 
 module.exports.getProduct = async (req, res) => {
   try {
     let id = req.params.id;
-    const products = await Product.findById(id).select();
+    const product = await Product.findById(id).select();
 
-    if (!products) {
-      res.status(404).json({ message: "Fail to get product! hello" });
+    if (!product) {
+      res.status(404).json({ message: "Fail to get product!" });
     } else {
-      res.json(products);
+      let modifiedProduct = { ...product.toObject() };
+
+      if (modifiedProduct.image) {
+        modifiedProduct.image = "yes";
+      } else {
+        modifiedProduct.image = "no";
+      }
+
+      res.json(modifiedProduct);
     }
   } catch {
-    res.status(500).json({ message: "Fail to fetch product! hello" });
+    res.status(500).json({ message: "Fail to fetch product!" });
   }
 };
-
 
 module.exports.getProductsInCategory = async (req, res, next) => {
   try {
     let category = req.params.category;
 
-    const products = await Product.find({
-      category,
+    const products = await Product.find({ category });
+    const modifiedProducts = products.map((product) => {
+      const hasImage =
+        product.image && product.image.data && product.image.data.length > 0
+          ? "yes"
+          : "no";
+      const modifiedProduct = { ...product._doc, image: hasImage };
+      return modifiedProduct;
     });
 
-    res.json(products);
-
-  } catch {
-    res.status(500).json({ message: "Fail to fetch products!" });
+    res.json(modifiedProducts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Failed to fetch products!", error: error });
   }
 };
 
 module.exports.addProduct = async (req, res, next) => {
   try {
-    const { title, price, description, image, category } = req.body;
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          status: "error",
+          message: "Failed to upload image.",
+        });
+      }
 
-    if (!req.body) {
-      return res.status(400).json({
-        status: "error",
-        message: "Provide all required fields.",
+      const { title, price, description, category } = req.body;
+
+      if (!title || !price || !description || !category) {
+        return res.status(400).json({
+          status: "error",
+          message: "Provide all required fields.",
+        });
+      }
+
+      const image = req.file;
+
+      if (!image) {
+        return res.status(400).json({
+          status: "error",
+          message: "Image is required.",
+        });
+      }
+
+      const imageData = image.buffer.toString("base64");
+
+      const product = await Product.create({
+        title,
+        price,
+        description,
+        category,
+        image: {
+          data: imageData,
+          contentType: image.mimetype,
+        },
       });
-    }
 
-    const product = await Product.create({
-      title,
-      price,
-      description,
-      image,
-      category,
+      const responseProduct = {
+        title: product.title,
+        price: product.price,
+        description: product.description,
+        category: product.category,
+      };
+
+      res.json(responseProduct);
     });
-    res.json(product);
   } catch (err) {
     next(err);
   }
@@ -82,14 +130,51 @@ module.exports.addProduct = async (req, res, next) => {
 
 module.exports.editProduct = async (req, res, next) => {
   try {
-    if (typeof req.body == undefined || req.params.id == null) {
-      return res.status(400).json({
-        status: "error",
-        message: "Provide product to edit.",
+    upload(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({
+          status: "error",
+          message: "Failed to upload image.",
+        });
+      }
+
+      if (!req.body || !req.params.id) {
+        return res.status(400).json({
+          status: "error",
+          message: "Provide product to edit.",
+        });
+      }
+
+      const { title, price, description, category } = req.body;
+
+      const updates = {};
+
+      if (title || price || description || category) {
+        // $set is a MongoDB update operator that specifies which fields should be updated in a document.
+        updates.$set = {};
+        if (title) updates.$set.title = title;
+        if (price) updates.$set.price = price;
+        if (description) updates.$set.description = description;
+        if (category) updates.$set.category = category;
+      } else {
+        return res.json("No fields to update!");
+      }
+
+      if (req.file) {
+        const image = req.file;
+        const imageData = image.buffer.toString("base64");
+        updates.image = {
+          data: imageData,
+          contentType: image.mimetype,
+        };
+      }
+
+      const product = await Product.findByIdAndUpdate(req.params.id, updates, {
+        new: true,
       });
-    }
-    const product = await Product.findByIdAndUpdate(req.body);
-    res.json(product);
+
+      return res.json("Product updated!");
+    });
   } catch (err) {
     next(err);
   }
