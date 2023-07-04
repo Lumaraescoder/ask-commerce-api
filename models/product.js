@@ -18,15 +18,15 @@ const productSchema = new schema({
     type: String,
     required: true,
     trim: true,
-    enum: ['Eletronics', 'Books', 'Clothing', 'Other'],
+    enum: ["Eletronics", "Books", "Clothing", "Other"],
   },
   description: {
     type: String,
     required: true,
   },
   image: {
-    type: String,
-    required: true,
+    data: Buffer,
+    contentType: String,
   },
 });
 
