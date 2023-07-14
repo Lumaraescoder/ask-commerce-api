@@ -80,9 +80,9 @@ module.exports.addCart = async(req, res) => {
 
 module.exports.deleteProductFromCart = async(req, res) => {
     const userId = req.params.userId;
-    const productParamId = req.params.productId;
-    try {
+    const productId = req.params.productId;
 
+    try {
         let cart;
 
         if (userId) {
@@ -90,42 +90,40 @@ module.exports.deleteProductFromCart = async(req, res) => {
         }
 
         if (!cart) {
-            res.status(500).json({ message: "Failed to find cart for this user", err });
+            return res.status(404).json({ message: 'Cart not found' });
         }
 
-        if (!productParamId) {
-            res.status(500).json({ message: "Failed to find product on this cart", err });
+        const productIndex = cart.products.findIndex((p) => p.productId === productId);
+
+        if (productIndex === -1) {
+            return res.status(404).json({ message: 'Product not found in cart' });
         }
 
-        if (productParamId) {
-            let selectedProduct = await cart.products.find(product => product.productId === `${productParamId}`);
-            if (selectedProduct === undefined) {
-                res.status(500).json({ message: "Failed to find product on this cart", err });
-            } else {
+        const product = cart.products[productIndex];
 
-                if (selectedProduct.quantity > 1) {
-                    selectedProduct.quantity -= 1;
-                    cart.total -= selectedProduct.price;
-                } else {
-                    let indexOfSelectedProduct = cart.products.indexOf(selectedProduct);
-                    cart.products.splice(indexOfSelectedProduct, 1);
-                    cart.total -= selectedProduct.quantity * selectedProduct.price;
-                }
-            }
-        }
-        if (cart.products.length < 1) {
-            const cart = await Cart.deleteOne({ userId: req.params.userId });
-            res.status(200).json({ message: 'Product removed successfully from cart and cart deleted' });
+        if (product.quantity > 1) {
+            product.quantity -= 1;
+            cart.total -= product.price;
         } else {
-            await cart.save();
-            res.status(200).json({ message: 'Product removed successfully from cart', cart });
+            cart.products.splice(productIndex, 1);
+            cart.total -= product.price;
         }
 
+        if (cart.products.length === 0) {
+            // Se o carrinho estiver vazio, remover o carrinho
+            await Cart.deleteOne({ userId });
+            return res.json({ message: 'Product removed successfully from cart and cart deleted' });
+        }
+
+        await cart.save();
+
+        res.json({ message: 'Product removed successfully from cart', cart });
     } catch (err) {
-        console.log(err);
-        res.status(500).json({ message: "Failed to remove product from cart", err });
+        console.error(err);
+        res.status(500).json({ message: 'Failed to remove product from cart', error: err });
     }
 };
+
 
 module.exports.deleteFullCart = async(req, res, next) => {
     try {
