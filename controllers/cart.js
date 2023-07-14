@@ -127,7 +127,8 @@ module.exports.deleteProductFromCart = async(req, res) => {
 
 module.exports.deleteFullCart = async(req, res, next) => {
     try {
-        const cart = await Cart.deleteOne({ _id: req.params.id });
+        const userId = req.params.userId;
+        const cart = await Cart.deleteOne({ userId });
         res.json(cart);
     } catch (err) {
         next(err);
