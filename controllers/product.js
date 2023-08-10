@@ -89,7 +89,7 @@ module.exports.addProduct = async(req, res, next) => {
                 });
             }
 
-            const { title, price, description, category, rating } = req.body;
+            const { title, price, description, category, image, rating } = req.body;
             const { rate, count } = rating;
 
             if (!title || !price || !description || !category) {
@@ -104,6 +104,7 @@ module.exports.addProduct = async(req, res, next) => {
                 price,
                 description,
                 category,
+                image,
                 rating: {
                     rate,
                     count,
