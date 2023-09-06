@@ -156,23 +156,37 @@ module.exports.deleteFullCart = async (req, res, next) => {
 
 module.exports.payment = async (req, res) => {
 
-  const { amount } = req.body;
 
+
+  const amount = parseFloat(req.body.amount);
+
+  if (isNaN(amount) || !Number.isInteger(amount)) {
+    return res.status(400).json({
+      message: "Invalid amount",
+      success: false,
+    });
+  }
+
+  
+  
   try {
-    const payment = await stripe.paymentIntents.create({
-      amount: amount,
+    
+    const paymentIntent = await stripe.paymentIntents.create({ // used to create a new Payment Intent.
+      amount: amountInCents,
       currency: "eur",
+      automatic_payment_methods: {
+        enabled: true,
+      }
     });
 
     res.send({
-      clientSecret: payment.client_secret,
+      clientSecret: paymentIntent.client_secret, // este client secret é o q vai confirmar o pagamento no cliente side 
     });
 
   } catch (error) {
-
     console.error("Error", error);
-    res.json({
-      message: "you failed",
+    res.status(500).json({
+      message: "Payment failed", // Set an appropriate error message
       success: false,
     });
   }
