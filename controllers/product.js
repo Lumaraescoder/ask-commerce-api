@@ -1,6 +1,7 @@
 const Product = require("../models/product");
 const multer = require("multer");
 const upload = multer().single("image");
+const cloudinary = require("cloudinary").v2;
 
 module.exports.getAllProducts = async(req, res, next) => {
     try {
@@ -155,3 +156,27 @@ module.exports.deleteProduct = async(req, res, next) => {
         next(err);
     }
 };
+
+module.exports.createProduct = async(req, res, next) => {
+    try {
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const product = new Product({
+            title: req.body.title,
+            price: req.body.price,
+            category: req.body.category,
+            description: req.body.description,
+            image: result.secure_url
+        });
+        await product.save();
+        res.send({
+            success: true,
+            product: product,
+        })
+    } catch (err) {
+        console.log(err);
+        res.send({
+            success: false,
+            message: err.message,
+        })
+    }
+}

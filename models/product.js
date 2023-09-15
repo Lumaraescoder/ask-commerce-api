@@ -24,6 +24,10 @@ const productSchema = new schema({
         type: String,
         required: true,
     },
+    image: {
+        type: String,
+        required: true,
+    },
     rating: {
         rate: {
             type: Number,
