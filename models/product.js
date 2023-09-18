@@ -25,8 +25,8 @@ const productSchema = new schema({
         required: true,
     },
     image: {
-        data: Buffer,
-        contentType: String,
+        type: String,
+        required: true,
     },
     rating: {
         rate: {
