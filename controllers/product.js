@@ -165,7 +165,11 @@ module.exports.createProduct = async(req, res, next) => {
             price: req.body.price,
             category: req.body.category,
             description: req.body.description,
-            image: result.secure_url
+            image: result.secure_url,
+            rating: {
+                rate: req.body.rating.rate,
+                count: req.body.rating.count,
+            }
         });
         await product.save();
         res.send({
