@@ -27,7 +27,11 @@ const cartSchema = new schema({
         price: {
             type: Number,
             ref: Product,
-            required: true
+            required: true,
+        },
+        image: {
+            type: String,
+            required: true,
         }
     }],
     total: {
